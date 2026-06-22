@@ -1,0 +1,15 @@
+.result {
+    text-align: right;
+    font-size: 2rem;
+    font-weight: bolder;
+
+    width: 300px;
+}
+
+.btn {
+    width: calc(300px / 3);
+    height: calc(300px / 3);
+
+    font-size: 1.5rem;
+    
+}
