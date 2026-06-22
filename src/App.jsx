@@ -10,7 +10,7 @@ function App() {
   return (
     <>
       <title>Web電卓</title>
-      <div className="App">
+      <div className="App min-h-screen bg-gray-300">
         {isOpen && (
           <div
             className="fixed inset-0 bg-black/50 z-40"
