@@ -2,13 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import "./style.css";
 import Decimal from "decimal.js/decimal.js";
 
-const Calc = ({ onEqualClicked }) => {
+const Calc = ({ onEqualClicked, callHistory }) => {
     const [ display, setDisplay ] = useState("0");
     const [ left, setLeft ] = useState("0");
     const [ right, setRight ] = useState("0");
     const [ mode, setMode ] = useState(null);
     const [ float, setFloat ] = useState(0);
     const [ mem, setMem ] = useState("0");
+    const [ prevKey, setPrevKey ] = useState(null);
     
     const keys = [
         ["AC", "MC", "MR", "M+", "M-"],
@@ -19,6 +20,7 @@ const Calc = ({ onEqualClicked }) => {
     ];
 
     function handleKey(key) {
+        console.log(key);
         if(!isNaN(key)) {
             const number = new Decimal(key);
             let newNum = 0;
@@ -51,6 +53,7 @@ const Calc = ({ onEqualClicked }) => {
         }
 
         if(key == "=") {
+            if(!mode) return;
             let result = "";
             if(mode == "+") {
                 result = new Decimal(left).plus(new Decimal(right));
@@ -61,6 +64,7 @@ const Calc = ({ onEqualClicked }) => {
             } else if(mode == "/") {
                 result = new Decimal(left).div(new Decimal(right));
             }
+            onEqualClicked(left, mode, right, result.toString());
             setDisplay(result.toString());
             setLeft("0");
             setRight("0");
@@ -142,22 +146,90 @@ const Calc = ({ onEqualClicked }) => {
         setFloat(0);
         if(mode && right !== 0) {
             let result = 0;
-            if(key == "+") {
+            if(prevKey == "+") {
                 result = new Decimal(left).plus(new Decimal(right));
-            } else if(key == "-") {
+            } else if(prevKey == "-") {
                 result = new Decimal(left).minus(new Decimal(right));
-            } else if(key == "*") {
+            } else if(prevKey == "*") {
                 result = new Decimal(left).times(new Decimal(right));
-            } else if(key == "/") {
+            } else if(prevKey == "/") {
                 result = new Decimal(left).div(new Decimal(right));
             }
-            setLeft(result);
+            setMode(prevKey);
+            setPrevKey(key);
+            setLeft(result.toString());
             setRight("0");
-            setDisplay(result);
+            setDisplay(result.toString());
         }
         setMode(key);
     }
 
+    const handleKeyRef = useRef(handleKey);
+    useEffect(() => {
+        handleKeyRef.current = handleKey;
+    });
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if(!isNaN(event.key)) {
+                handleKeyRef.current(event.key);
+                return;
+            }
+            if(event.key == "Enter") {
+                handleKeyRef.current("=");
+                return;
+            }
+            if(event.key == "Backspace") {
+                handleKeyRef.current("BS");
+                return;
+            }
+            if(event.key == "Escape") {
+                handleKeyRef.current("AC");
+                return;
+            }
+            if(["+", "-", "*", "/", "."].includes(event.key)) {
+                handleKeyRef.current(event.key);
+                return;
+            }
+            return;
+        }
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        }
+    }, []);
+
+    useEffect(() => {
+        if(!callHistory) return;
+
+        if(!mode) {
+            setLeft(callHistory.result);
+        } else {
+            setRight(callHistory.result);
+        }
+        setFloat(0);
+        setDisplay(callHistory.result);
+    }, [callHistory]);
+
+    const displayRef = useRef(null);
+    const [ fontSize, setFontSize ] = useState(48);
+
+    useEffect(() => {
+        const el = displayRef.current;
+        if(!el) return;
+
+        let size = 48;
+        el.style.fontSize = `${size}px`;
+
+        while(el.scrollWidth > el.clientWidth && size > 16) {
+            size--;
+            el.style.fontSize = `${size}px`;
+        }
+
+        setFontSize(size);
+    }, [display]);
+    
     useEffect(() => {
         console.log(`${left} ${mode ? mode : ""} ${right ? right : ""}`);
         return;
@@ -166,7 +238,13 @@ const Calc = ({ onEqualClicked }) => {
     return (
         <div className="calc">
             <span>{mode}</span><br />
-            <input type="text" value={display} className="result" readOnly />
+            <div
+                ref={displayRef}
+                className="result"
+                style={{ fontSize }}
+            >
+                {display}
+            </div>
 
             <div className="backSpace">
                 <input
