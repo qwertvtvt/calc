@@ -18,16 +18,37 @@
 .buttons-4 {
     display: flex;
     width: 300px;
-    gap: 1px;
+    gap: 0px;
+}
+
+.buttons-5 {
+    display: flex;
+    width: 300px;
+    gap: 0px;
 }
 
 .btn {
-    width: calc(300px / 4);
-    height: calc(300px / 4);
+    width: calc(292px / 4);
+    height: calc(292px / 4);
 
     font-size: 2rem;
     background-color: rgb(77, 77, 77);
     color: white;
     margin: 1px;
     border-radius: 10px;
+}
+
+.ctrlBtn {
+    width: calc(291px / 5);
+    height: 50px;
+
+    font-size: 1.2rem;
+    color: white;
+    margin: 1px;
+    border-radius: 10px;
+}
+
+.backSpace {
+    width: 300px;
+    text-align: right;
 }
