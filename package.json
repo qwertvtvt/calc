@@ -14,7 +14,8 @@
     "decimal.js": "^10.6.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "tailwindcss": "^4.3.1"
+    "tailwindcss": "^4.3.1",
+    "use-sound": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

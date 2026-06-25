@@ -13,8 +13,10 @@ function App() {
   const [ history, setHistory ] = useState([]);
 
   const handleEqualClicked = (left, mode, right, result) => {
-    setHistory([...history, {left, mode, right, result}]);
-  }
+    setHistory(prev => [...prev, { left, mode, right, result }]);
+  };
+
+  const clearHistory = () => setHistory([]);
   
   const [ selectedHistory, setSelectedHistory ] = useState(null);
 
@@ -46,7 +48,7 @@ function App() {
       window.removeEventListener("touchstart", touchStart);
       window.removeEventListener("touchend", touchEnd);
     };
-  });
+  }, []);
 
   return (
     <>
@@ -62,11 +64,23 @@ function App() {
         <div className={`
           fixed inset-y-0 left-0 z-50 w-3/4 max-w-sm bg-gray-100 p-4 transition-transform duration-300 ease-in-out transform
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          overflow-y-auto
         `}>
           <div className="flex justify-between items-center mb-4">
             <h1 className='text-3xl'>History</h1>
             <button onClick={() => setIsOpen(false)} className="text-2xl p-2">✕</button>
           </div>
+          {history.length > 0 ? (
+            <button
+              className='p-2 rounded bg-gray-300 hover:bg-gray-200'
+              onClick={clearHistory}
+            >
+              Clear History
+            </button>
+          ) : (
+            <></>
+          )}<br />
+          <br />
           {history.length > 0 ? history.map((form, index) => (
             <div
               key={index}

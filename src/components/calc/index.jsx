@@ -1,15 +1,19 @@
 import { useState, useEffect, useRef } from "react";
+import useSound from "use-sound";
 import "./style.css";
 import Decimal from "decimal.js/decimal.js";
 
+import yaju from "../../assets/yaju.mp3";
+
 const Calc = ({ onEqualClicked, callHistory }) => {
+    const [ playYaju, { stopYaju, pauseYaju } ] = useSound(yaju);
+
     const [ display, setDisplay ] = useState("0");
     const [ left, setLeft ] = useState("0");
     const [ right, setRight ] = useState("0");
     const [ mode, setMode ] = useState(null);
     const [ float, setFloat ] = useState(0);
     const [ mem, setMem ] = useState("0");
-    const [ prevKey, setPrevKey ] = useState(null);
     
     const keys = [
         ["AC", "MC", "MR", "M+", "M-"],
@@ -71,6 +75,18 @@ const Calc = ({ onEqualClicked, callHistory }) => {
             setMode(null);
             setFloat(0);
 
+            if(result.toString() == "810") {
+                playYaju();
+                /*
+                    ヌゥン！ヘッ！ヘッ！
+                    ア゛ア゛ア゛ア゛ァ゛ァ゛ァ゛ァ゛
+                    ア゛↑ア゛↑ア゛↑ア゛↑ア゛ア゛ア゛ァ゛ァ゛ァ゛ァ゛！！！！
+                    ウ゛ア゛ア゛ア゛ア゛ア゛ア゛ァ゛ァ゛ァ゛ァ゛ァ゛ァ゛ァ！！！！！
+                    フ ウ゛ウ゛ウ゛ゥ゛ゥ゛ゥ゛ン！！！！
+                    フ ウ゛ゥ゛ゥ゛ゥン！！！！(大迫真)
+                */
+            }
+
             return;
         }
 
@@ -90,6 +106,11 @@ const Calc = ({ onEqualClicked, callHistory }) => {
         }
         if(key == "MR") {
             setDisplay(mem);
+            if(!mode) {
+                setLeft(mem);
+            } else {
+                setRight(mem);
+            }
             return;
         }
         if(key == "M+") {
@@ -134,29 +155,27 @@ const Calc = ({ onEqualClicked, callHistory }) => {
             let newNum = "";
             if(!mode) {
                 newNum = new Decimal(left).times(-1);
-                setLeft(newNum);
+                setLeft(newNum.toString());
             } else {
                 newNum = new Decimal(right).times(-1);
-                setLeft(newNum);
+                setRight(newNum.toString());
             }
-            setDisplay(newNum);
+            setDisplay(newNum.toString());
             return;
         }
 
         setFloat(0);
-        if(mode && right !== 0) {
+        if(mode && right !== "0") {
             let result = 0;
-            if(prevKey == "+") {
+            if(mode == "+") {
                 result = new Decimal(left).plus(new Decimal(right));
-            } else if(prevKey == "-") {
+            } else if(mode == "-") {
                 result = new Decimal(left).minus(new Decimal(right));
-            } else if(prevKey == "*") {
+            } else if(mode == "*") {
                 result = new Decimal(left).times(new Decimal(right));
-            } else if(prevKey == "/") {
+            } else if(mode == "/") {
                 result = new Decimal(left).div(new Decimal(right));
             }
-            setMode(prevKey);
-            setPrevKey(key);
             setLeft(result.toString());
             setRight("0");
             setDisplay(result.toString());
